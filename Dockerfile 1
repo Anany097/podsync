@@ -1,0 +1,7 @@
+FROM ghcr.io/mxpv/podsync:nightly
+
+# نسخ البيئة (اختياري)
+ENV CONFIG_TOML=""
+
+# تشغيل Podsync باستخدام متغير ENV بدل الملف
+CMD ["sh", "-c", "podsync --config <(echo \"$CONFIG_TOML\")"]
