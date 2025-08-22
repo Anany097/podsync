@@ -1,0 +1,24 @@
+# استخدم نسخة خفيفة من Golang
+FROM golang:1.21-alpine
+
+# تثبيت الأدوات اللازمة
+RUN apk add --no-cache curl git bash ffmpeg
+
+# تحميل آخر نسخة Podsync
+RUN curl -L https://github.com/mxpv/podsync/releases/latest/download/podsync_linux_amd64 -o /usr/local/bin/podsync
+RUN chmod +x /usr/local/bin/podsync
+
+# إنشاء مجلد للتشغيل
+WORKDIR /app
+
+# نسخ config.toml من المستودع
+COPY config.toml /app/config.toml
+
+# تثبيت cron لتشغيل تحديث يومي
+RUN apk add --no-cache cronie
+
+# إضافة cron job لتشغيل Podsync كل يوم الساعة 3 صباحًا
+RUN echo "0 3 * * * /usr/local/bin/podsync --config /app/config.toml >> /app/podsync.log 2>&1" >> /etc/crontabs/root
+
+# شغّل Podsync + cron معًا
+CMD crond -f -d 8
